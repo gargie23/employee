@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Complete Your Profile</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="id_proof" class="form-label">ID Proof (PDF/JPG/PNG)</label>
+                        <input type="file" class="form-control" id="id_proof" name="id_proof" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                    <div class="mb-3">
+                        <label for="aadhar_proof" class="form-label">Aadhar Card Proof (PDF/JPG/PNG)</label>
+                        <input type="file" class="form-control" id="aadhar_proof" name="aadhar_proof" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fir_receipt" class="form-label">FIR Receipt (If applicable, PDF/JPG/PNG)</label>
+                        <input type="file" class="form-control" id="fir_receipt" name="fir_receipt" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Documents</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Senior DO{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Senior DO</h2>
+        <div>
+            <span class="badge bg-dark">Senior DO</span>
+        </div>
+    </div>
+
+<div class="row mb-5">
+    <div class="col">
+        <h4>Letters Pending Final Approval</h4>
+        {% if pending_letters %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Officer</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for letter in pending_letters %}
+                    <tr>
+                        <td>{{ letter.title }}</td>
+                        <td>{{ letter.user.full_name }}</td>
+                        <td>{{ letter.officer.full_name }}</td>
+                        <td>{{ letter.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                {{ letter.status|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('view_letter', letter_id=letter.id) }}" class="btn btn-sm btn-outline-primary">Review</a>
+                                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ letter.id }}">
+                                    Approve
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ letter.id }}">
+                                    Reject
+                                </button>
+                            </div>
+                            
+                            <!-- Approve Modal -->
+                            <div class="modal fade" id="approveModal{{ letter.id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ letter.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="approveModalLabel{{ letter.id }}">Approve Letter</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to approve this letter?</p>
+                                            <p><strong>Title:</strong> {{ letter.title }}</p>
+                                            <p><strong>Author:</strong> {{ letter.user.full_name }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('head_approve_letter', letter_id=letter.id) }}" method="POST">
+                                                <button type="submit" class="btn btn-success">Confirm Approval</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Reject Modal -->
+                            <div class="modal fade" id="rejectModal{{ letter.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ letter.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="rejectModalLabel{{ letter.id }}">Reject Letter</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ url_for('head_reject_letter', letter_id=letter.id) }}" method="POST">
+                                            <div class="modal-body">
+                                                <p>Are you sure you want to reject this letter?</p>
+                                                <p><strong>Title:</strong> {{ letter.title }}</p>
+                                                <p><strong>Author:</strong> {{ letter.user.full_name }}</p>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="rejectRemark{{ letter.id }}" class="form-label">Rejection Reason</label>
+                                                    <textarea class="form-control" id="rejectRemark{{ letter.id }}" name="reject_remark" rows="3" required></textarea>
+                                                    <div class="form-text">Please provide a reason for rejecting this letter.</div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No letters pending final approval</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col">
+        <h4>Your Recent Decisions</h4>
+        {% if reviewed_letters %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Status</th>
+                        <th>Decision Date</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for letter in reviewed_letters %}
+                    <tr>
+                        <td>{{ letter.title }}</td>
+                        <td>{{ letter.user.full_name }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if letter.status == 'head_approved' %}bg-success
+                                {% elif letter.status == 'head_rejected' %}bg-danger
+                                {% endif %}">
+                                {{ letter.status|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>{{ letter.updated_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if letter.head_remarks %}
+                                {{ letter.head_remarks }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_letter', letter_id=letter.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">You haven't made any final decisions yet</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col">
+        <h4>Pending ADO Approvals</h4>
+        {% if pending_users %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Designation</th>
+                        <th>Documents</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pending_users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.designation }}</td>
+                        <td>
+                            {% if user.id_proof %}<span class="badge bg-success me-1">ID</span>{% endif %}
+                            {% if user.aadhar_proof %}<span class="badge bg-success me-1">Aadhar</span>{% endif %}
+                            {% if user.fir_receipt %}<span class="badge bg-success me-1">FIR</span>{% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('head_approve_user', user_id=user.id) }}" class="btn btn-sm btn-success">Approve</a>
+                            <a href="{{ url_for('head_reject_user', user_id=user.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No users pending approval</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>DO</h4>
+            <a href="{{ url_for('head_create_officer') }}" class="btn btn-primary">Create New DO</a>
+        </div>
+        {% if officers %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Designation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for officer in officers %}
+                    <tr>
+                        <td>{{ officer.username }}</td>
+                        <td>{{ officer.full_name }}</td>
+                        <td>{{ officer.designation }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No DO registered</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

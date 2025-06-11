@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Approval{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Your Account is Pending Approval</h3>
+                <p class="card-text">
+                    Thank you for submitting your documents. Your account is currently under review by our administration team.
+                    You will be notified once your account has been approved.
+                </p>
+                <p class="card-text">
+                    If you need to update your documents, you can <a href="{{ url_for('profile') }}">edit your profile</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

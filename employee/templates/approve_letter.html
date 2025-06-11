@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action|title }} Letter{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>{{ action|title }} Letter: {{ letter.title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Letter Content:</h5>
+                    <div class="border p-3 bg-light">
+                        {{ letter.content|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                
+                {% if role == 'officer' and letter.officer_remark %}
+                <div class="mb-4">
+                    <h5>Officer Remark:</h5>
+                    <p>{{ letter.officer_remark }}</p>
+                </div>
+                {% endif %}
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="remark" class="form-label">
+                            {{ action|title }} Remark {% if action == 'reject' %}(Required){% endif %}
+                        </label>
+                        <textarea class="form-control" id="remark" name="remark" rows="3"
+                            {% if action == 'reject' %}required{% endif %}></textarea>
+                    </div>
+                    <button type="submit" class="btn 
+                        {% if action == 'approve' %}btn-success
+                        {% else %}btn-danger{% endif %}">
+                        {{ action|title }} Letter
+                    </button>
+                    <a href="{% if role == 'officer' %}{{ url_for('officer_dashboard') }}
+                            {% else %}{{ url_for('head_dashboard') }}{% endif %}" 
+                       class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

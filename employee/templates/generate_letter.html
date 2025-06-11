@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Generate {{ letter.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">{{ letter.title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5 class="mb-3">Letter Preview:</h5>
+                    <div class="border p-4 bg-light rounded">
+                        {{ letter.content|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> This is an auto-generated letter. Click "Submit" to send for approval.
+                </div>
+                
+                <form method="POST">
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Submit for Approval
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-muted">
+                <small>Generated on {{ now.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

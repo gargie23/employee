@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h1 class="display-4 mb-4">Welcome, {{ current_user.full_name }}</h1>
+        
+        <div class="card mb-5">
+            <div class="card-header">
+                <h4>Sample Letters</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Permission Letter</h5>
+                                <p class="card-text">Request permission for event participation</p>
+                                <a href="{{ url_for('generate_letter', letter_type='permission') }}" 
+                                   class="btn btn-primary">Generate</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">NOC Request</h5>
+                                <p class="card-text">Request No Objection Certificate</p>
+                                <a href="{{ url_for('generate_letter', letter_type='noc') }}" 
+                                   class="btn btn-primary">Generate</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Leave Application</h5>
+                                <p class="card-text">Apply for leave</p>
+                                <a href="{{ url_for('generate_letter', letter_type='leave') }}" 
+                                   class="btn btn-primary">Generate</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4>My Submitted Letters</h4>
+            </div>
+            <div class="card-body">
+                {% if current_user.letters %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for letter in current_user.letters|sort(attribute='updated_at', reverse=True) %}
+                            <tr>
+                                <td>{{ letter.title }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if letter.status == 'submitted' %}bg-primary
+                                        {% elif letter.status == 'officer_approved' %}bg-info
+                                        {% elif letter.status == 'officer_rejected' %}bg-danger
+                                        {% elif letter.status == 'head_approved' %}bg-success
+                                        {% elif letter.status == 'head_rejected' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ letter.status|replace('_', ' ')|title }}
+                                    </span>
+                                </td>
+                                <td>{{ letter.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_letter', letter_id=letter.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">View</a>
+                                    {% if letter.status.endswith('rejected') %}
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" 
+                                            title="Remark: {{ letter.officer_remark if letter.status == 'officer_rejected' else letter.head_remark }}">
+                                        <i class="fas fa-comment"></i>
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">You haven't submitted any letters yet</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

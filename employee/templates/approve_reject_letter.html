@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action|title }} Letter{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-{% if action == 'approve' %}primary{% else %}danger{% endif %} text-white">
+                <h3>{{ action|title }} Letter: {{ letter.title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Letter Content:</h5>
+                    <div class="border p-3 bg-light">
+                        {{ letter.content|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="remark" class="form-label">
+                            {{ action|title }} Remark {% if action == 'reject' %}(Required){% endif %}
+                        </label>
+                        <textarea class="form-control" id="remark" name="remark" rows="3"
+                            {% if action == 'reject' %}required{% endif %}></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('officer_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-{% if action == 'approve' %}success{% else %}danger{% endif %}">
+                            {{ action|title }} Letter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
